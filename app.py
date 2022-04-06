@@ -1,16 +1,15 @@
 import dash
-from dash import dcc, html
+from dash import dcc, html, dash_table
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from helpers.key_finder import api_key
-from helpers.api_call import *
-
+from rss_parser import Parser
+from requests import get
+import json
 
 ########### Define a few variables ######
+from helpers.rss_utils import convert_feed_to_df
 
-tabtitle = 'Movies'
-sourceurl = 'https://www.kaggle.com/tmdb/tmdb-movie-metadata'
-sourceurl2 = 'https://developers.themoviedb.org/3/getting-started/introduction'
+tabtitle = 'Vader News Sentiment'
 githublink = 'https://github.com/austinlasseter/tmdb-rf-classifier'
 
 
@@ -24,31 +23,13 @@ app.title=tabtitle
 ########### Layout
 
 app.layout = html.Div(children=[
-    dcc.Store(id='tmdb-store', storage_type='session'),
-    dcc.Store(id='summary-store', storage_type='session'),
     html.Div([
-        html.H1(['Movie Reviews']),
-        html.Div([
-            html.Div([
-                html.Div('Randomly select a movie summary'),
-                html.Button(id='eek-button', n_clicks=0, children='API call', style={'color': 'rgb(255, 255, 255)'}),
-                html.Div(id='movie-title', children=[]),
-                html.Div(id='movie-release', children=[]),
-                html.Div(id='movie-overview', children=[]),
-
-            ], style={ 'padding': '12px',
-                    'font-size': '22px',
-                    # 'height': '400px',
-                    'border': 'thick red solid',
-                    'color': 'rgb(255, 255, 255)',
-                    'backgroundColor': '#536869',
-                    'textAlign': 'left',
-                    },
-            className='six columns'),
-
-        ], className='twelve columns'),
+        html.H3('Enter a RSS Feed'),
+        dcc.Input(id="input1", type="text", value="http://feeds.bbci.co.uk/news/rss.xml", className='six columns'),
+        html.Button('Submit', id='submit-btn', n_clicks=0, style={'marginLeft': '20px'}),
         html.Br(),
-
+        html.Br(),
+        html.Div(id="output1", children=[], className="nine columns")
     ], className='twelve columns'),
 
 
@@ -56,44 +37,44 @@ app.layout = html.Div(children=[
     html.Div([
         # Footer
         html.Br(),
-        html.A('Code on Github', href=githublink, target="_blank"),
-        html.Br(),
-        html.A("Data Source: Kaggle", href=sourceurl, target="_blank"),
-        html.Br(),
-        html.A("Data Source: TMDB", href=sourceurl2, target="_blank"),
+        html.A('Code on Github', href=githublink, target="_blank")
     ], className='twelve columns'),
-
-
-
     ]
 )
 
 ########## Callbacks
 
 # TMDB API call
-@app.callback(Output('tmdb-store', 'data'),
-              [Input('eek-button', 'n_clicks')],
-              [State('tmdb-store', 'data')])
-def on_click(n_clicks, data):
-    if n_clicks is None:
-        raise PreventUpdate
-    elif n_clicks==0:
-        data = {'title':' ', 'release_date':' ', 'overview':' '}
-    elif n_clicks>0:
-        data = api_pull(random.choice(ids_list))
-    return data
+@app.callback(Output('output1', 'children'),
+              [Input('submit-btn', 'n_clicks')],
+              State('input1', 'value'))
+def on_click(n_clicks, value):
+    xml = get(value)
+    parser = Parser(xml=xml.content)
+    feed = parser.parse()
+    df = convert_feed_to_df(feed.feed)
+    return dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns]
+                                , style_table={
+                                    'overflowY': 'scroll',
+                                    'overflowX': 'auto',
+                                    'width': 'auto'
+                                },
+                                style_cell={
+                                    'textAlign': 'left',
+                                    'minWidth': '150px',
+                                    'width': '500px',
+                                    'maxWidth': '600px',
+                                    'whiteSpace': 'normal'
 
-@app.callback([Output('movie-title', 'children'),
-                Output('movie-release', 'children'),
-                Output('movie-overview', 'children'),
-                ],
-              [Input('tmdb-store', 'modified_timestamp')],
-              [State('tmdb-store', 'data')])
-def on_data(ts, data):
-    if ts is None:
-        raise PreventUpdate
-    else:
-        return data['title'], data['release_date'], data['overview']
+                                },
+                                style_header={
+                                    'textAlign': 'center',
+                                    'fontWeight': 'bold'
+                                },
+                                page_size=10,
+                                fill_width=False
+                                )
+
 
 
 ############ Deploy
