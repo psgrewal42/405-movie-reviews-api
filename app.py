@@ -12,7 +12,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from helpers.rss_utils import convert_feed_to_df
 
 tabtitle = 'Vader News Sentiment'
-githublink = 'https://github.com/austinlasseter/tmdb-rf-classifier'
+githublink = 'https://github.com/psgrewal42/405-movie-reviews-api'
 
 ########### Initiate the app
 external_stylesheets: List[str] = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
