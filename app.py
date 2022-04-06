@@ -23,15 +23,15 @@ app.title = tabtitle
 ########### Layout
 
 app.layout = html.Div(children=[
-    html.Datalist(id='list-data', children=[html.Option(value="http://feeds.bbci.co.uk/news/rss.xml"),
+    html.Datalist(id='list-data', children=[html.Option(value="http://feeds.bbci.co.uk/news/rss.xml", label="BBC"),
                                             html.Option(value=
-                                                        'http://rss.cnn.com/rss/cnn_topstories.rss'),
+                                                        'http://rss.cnn.com/rss/cnn_topstories.rss', label="CNN Top Stories"),
                                             html.Option(value=
-                                                        'https://www.washingtontimes.com/rss/headlines/culture/health/'),
+                                                        'https://www.washingtontimes.com/rss/headlines/culture/health/', label = "Wash Post Health"),
                                             html.Option(value=
-                                                        'https://www.washingtontimes.com/rss/headlines/culture/technology/'),
+                                                        'https://www.washingtontimes.com/rss/headlines/culture/technology/', label = "Wash Post Tech"),
                                             html.Option(value=
-                                                        'https://www.washingtontimes.com/rss/headlines/opinion/editorials/')]),
+                                                        'https://www.washingtontimes.com/rss/headlines/opinion/editorials/', label = "Wash Post Editorials")]),
     html.Div([
         html.H3('Enter a RSS Feed or Pick from list'),
         dcc.Input(id="input1", type="text", value="", className='six columns',
