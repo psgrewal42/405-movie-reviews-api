@@ -23,7 +23,9 @@ app.title = tabtitle
 ########### Layout
 
 app.layout = html.Div(children=[
-    html.Datalist(id='list-data', children=[html.Option(value="http://feeds.bbci.co.uk/news/rss.xml", label="BBC"),
+    html.Datalist(id='list-data', children=[
+                                            html.Option(value="https://zapier.com/engine/rss/12262777/pgrewal", label = "Zelensky Tweet RSS"),
+                                            html.Option(value="http://feeds.bbci.co.uk/news/rss.xml", label="BBC"),
                                             html.Option(value=
                                                         'http://rss.cnn.com/rss/cnn_topstories.rss', label="CNN Top Stories"),
                                             html.Option(value=
